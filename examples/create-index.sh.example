@@ -1,0 +1,26 @@
+#!/bin/bash
+
+
+function createIndex {
+        echo "Indexing $1 ..."
+        cd $1
+        find . -type f -printf "%s\t%T@\t%p\n" | gzip > ../$1.index.gz
+        cd ..
+}
+
+
+
+ROOTDIR=/some/dir
+FILESET=MyFileSet
+
+
+
+
+
+cd $ROOTDIR
+createIndex $FILESET
+
+echo "Done."
+
+
+
