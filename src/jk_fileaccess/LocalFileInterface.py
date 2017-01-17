@@ -27,8 +27,9 @@ class LocalFileInterface(AbstractFileInterface):
 		self.__rootDirPath = rootDirPath
 		self.__fileSetName = fileSetName
 		self.__fileSizes = []
+		self.__relFilePaths = []
 		self.__filePaths = []
-		self.__dirPaths = []
+		self.__relDirPaths = []
 		self.__timeStamps = []
 
 		# download file index
@@ -46,10 +47,11 @@ class LocalFileInterface(AbstractFileInterface):
 					n = sRelPath.rfind('/')
 					if n > 0:
 						sRelDirPath = sRelPath[0:n]
-						if (len(self.__dirPaths) == 0) or (self.__dirPaths[len(self.__dirPaths) - 1] != sRelDirPath):
-							self.__dirPaths.append(sRelDirPath)
+						if (len(self.__relDirPaths) == 0) or (self.__relDirPaths[len(self.__relDirPaths) - 1] != sRelDirPath):
+							self.__relDirPaths.append(sRelDirPath)
 					abspath = os.path.abspath(os.path.join(rootDirPath, sRelPath))
 					abspath = abspath[len(rootDirPath) + 1:]
+					self.__relFilePaths.append(sRelPath)
 					self.__filePaths.append(abspath)
 					timeStamp = datetime.utcfromtimestamp(float(sTimeStamp))
 					self.__timeStamps.append(timeStamp)
@@ -62,7 +64,7 @@ class LocalFileInterface(AbstractFileInterface):
 
 
 	def countDirs(self):
-		return len(self.__dirPaths)
+		return len(self.__relDirPaths)
 
 
 
@@ -136,10 +138,10 @@ class LocalFileInterface(AbstractFileInterface):
 	#
 	def getFileByPath(self, relFilePath):
 		i = 0
-		for relFilePath2 in self.__filePaths:
+		for relFilePath2 in self.__relFilePaths:
 			if relFilePath == relFilePath2:
 				path = os.path.join(self.__rootDirPath, self.__fileSetName, relFilePath)
-				yield (relFilePath, self.__fileSizes[i], self.__timeStamps[i], path, False)
+				return (relFilePath, self.__fileSizes[i], self.__timeStamps[i], path, False)
 			i += 1
 		return None
 
@@ -159,9 +161,9 @@ class LocalFileInterface(AbstractFileInterface):
 	#								described above.
 	#
 	def getFilePathIterator(self):
-		nmax = len(self.__filePaths)
+		nmax = len(self.__relFilePaths)
 		i = 0
-		for relFilePath in self.__filePaths:
+		for relFilePath in self.__relFilePaths:
 			yield (i, nmax, relFilePath, self.__fileSizes[i], self.__timeStamps[i])
 			i += 1
 
@@ -179,9 +181,9 @@ class LocalFileInterface(AbstractFileInterface):
 	#								described above.
 	#
 	def getDirPathIterator(self):
-		nmax = len(self.__dirPaths)
+		nmax = len(self.__relDirPaths)
 		i = 0
-		for relDirPath in self.__dirPaths:
+		for relDirPath in self.__relDirPaths:
 			yield (i, nmax, relDirPath)
 			i += 1
 
