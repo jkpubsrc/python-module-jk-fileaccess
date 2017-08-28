@@ -7,19 +7,20 @@ def readme():
 
 
 setup(name='jk_fileaccess',
-	version='0.2017.1.15',
+	version='0.2017.8.28',
 	description='Provides a uniform interface to process files that are either stored locally or remotely.',
 	author='Jürgen Knauth',
 	author_email='pubsrc@binary-overflow.de',
 	license='Apache 2.0',
 	url='https://github.com/jkpubsrc/python-module-jk-fileaccess',
-	download_url='https://github.com/jkpubsrc/python-module-jk-fileaccess/tarball/0.2017.1.15',
-	keywords=['file', 'filesystem', 'ssh', 'sftp', 'iterating'],
+	download_url='https://github.com/jkpubsrc/python-module-jk-fileaccess/tarball/0.2017.8.28',
+	keywords=['file', 'filesystem', 'ssh', 'sftp', 'cifs', 'smb', 'iterating'],
 	packages=['jk_fileaccess'],
 	install_requires=[
 		"jk_temporary",
 		"sh",
-		"pysftp"
+		"pysftp",
+		"pysmbc"
 	],
 	include_package_data=True,
 	classifiers=[

@@ -30,7 +30,7 @@ class SshRemoteFileInterface(AbstractFileInterface):
 
 		cnopts = pysftp.CnOpts()
 		cnopts.hostkeys = None
-		self.__con = pysftp.Connection(hostname, username=userName, password=password, cnopts=cnopts)
+		self.__con = pysftp.Connection(hostname, port=port, username=userName, password=password, cnopts=cnopts)
 
 		self.__tempDir = TempDir(tempDirPath, 'sftp-', None, None, 32, 0o600, 0o700)
 		self.__tempDir.clear()

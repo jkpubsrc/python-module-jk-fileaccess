@@ -4,7 +4,7 @@ jk_fileaccess
 Introduction
 ------------
 
-This python module provides a uniform interface to process files that are either stored locally or remotely.
+This python module provides a uniform interface to access and process files that are either stored locally or remotely.
 
 **What this uniform interface is:** A simple way to iterate over a (very) large set of files. This should
 be fast, this should be simple. That is the goal this module tries to achieve.
