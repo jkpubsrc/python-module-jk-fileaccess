@@ -145,7 +145,7 @@ class CifsShare(AbstractShare):
 
 
 
-	def writeAllDataToFile(self, remoteOutputFilePath, fileData):
+	def _writeAllDataToFile(self, remoteOutputFilePath, fileData):
 		if remoteOutputFilePath.startswith("/"):
 			remotePath = self.__urlBase + remoteOutputFilePath[1:]
 		else:
@@ -302,14 +302,15 @@ class CifsShare(AbstractShare):
 
 class CifsClient(object):
 
-	def __init__(self, serverIPAddress, userName, password):
+	def __init__(self, serverIPAddress, userName, password, workgroup = None):
 		self.__serverIPAddress = serverIPAddress
 		self.__userName = userName
 		self.__password = password
+		self.__workgroup = workgroup
 
 		self.__ctx = smbc.Context()
 		self.__ctx.optionNoAutoAnonymousLogin = True
-		cb = lambda se, sh, w, u, p: (w, self.__userName, self.__password)
+		cb = lambda server, shar, workgroup, user, pwd: (self.__workgroup if self.__workgroup != None else workgroup, self.__userName, self.__password)
 		self.__ctx.functionAuthData = cb
 
 		self.__openShares = {}
@@ -382,7 +383,7 @@ class CifsClient(object):
 	def __getShareObject(self, shareName):
 		dir = self.__ctx.opendir("smb://" + self.__serverIPAddress + "/")
 		entries = dir.getdents()
-		for entry in entriesopenShare:
+		for entry in entries:
 			if shareName == entry.name:
 				return entry
 		return None

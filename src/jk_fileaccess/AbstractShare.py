@@ -85,7 +85,26 @@ class AbstractShare(object):
 	def uploadLocalFile(self, localInputFilePath, remoteOutputFilePath, bRemoveLocalFileAfterUpload = False):
 		pass
 
+	#
+	# Write text or binary data file.
+	#
+	# Note: Text is written UTF-8 encoded. If you require different encoding, convert the text to binary yourself before invoking
+	# this method.
+	#
 	def writeAllDataToFile(self, remoteOutputFilePath, fileData):
+		if isinstance(fileData, str):
+			fileData = fileData.encode("utf-8")
+		elif isinstance(fileData, (bytearray, bytes)):
+			pass
+		else:
+			raise Exception("Data must be provided as string or byte object!")
+
+		self._writeAllDataToFile(remoteOutputFilePath, fileData)
+	#
+
+
+
+	def _writeAllDataToFile(self, remoteOutputFilePath, fileData):
 		pass
 
 	def readAllDataFromFile(self, remoteInputFilePath):

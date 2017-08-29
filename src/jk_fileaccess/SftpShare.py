@@ -168,7 +168,7 @@ class SftpShare(AbstractShare):
 
 
 
-	def writeAllDataToFile(self, remoteOutputFilePath, fileData):
+	def _writeAllDataToFile(self, remoteOutputFilePath, fileData):
 		remotePath = self.__buildPath(remoteOutputFilePath)
 		if self.__tempDirPath is None:
 			fd = self.__con.open(remotePath, mode='w', bufsize=65536)

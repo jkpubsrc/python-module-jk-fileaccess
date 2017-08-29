@@ -196,7 +196,7 @@ class LocalShare(AbstractShare):
 
 
 
-	def writeAllDataToFile(self, remoteOutputFilePath, fileData):
+	def _writeAllDataToFile(self, remoteOutputFilePath, fileData):
 		remotePath = self.__buildPath(remoteOutputFilePath)
 		# print(">> " + remotePath)
 		# print("\t" + str(len(fileData)))
