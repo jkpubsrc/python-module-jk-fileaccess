@@ -145,7 +145,7 @@ class CifsShare(AbstractShare):
 
 
 
-	def _writeAllDataToFile(self, remoteOutputFilePath, fileData):
+	def _writeAllDataToFile(self, remoteOutputFilePath, fileData, timeStamp = None):
 		if remoteOutputFilePath.startswith("/"):
 			remotePath = self.__urlBase + remoteOutputFilePath[1:]
 		else:
@@ -186,14 +186,21 @@ class CifsShare(AbstractShare):
 
 
 
-	def deleteFile(self, path):
+	def deleteFile(self, path, bIgnoreErrorIfNotExists = False):
 		if path.startswith("/"):
 			path2 = self.__urlBase + path[1:]
 		else:
 			raise Exception("Not an absolute path: " + path)
 		# TODO: normalize specified path
-		self.__ctx.unlink(path2)
-
+		if bIgnoreErrorIfNotExists:
+			# TODO: fail if target is not a file!
+			try:
+				self.__ctx.unlink(path2)
+			except:
+				return False
+		else:
+			self.__ctx.unlink(path2)
+		return True
 	#
 
 

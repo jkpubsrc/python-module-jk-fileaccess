@@ -159,7 +159,7 @@ class SftpShare(AbstractShare):
 		remoteDir = os.path.dirname(remotePath)
 
 		self.__con.chdir(remoteDir)
-		self.__con.put(localInputFilePath)
+		self.__con.put(localInputFilePath, preserve_mtime=True)
 
 		if bRemoveLocalFileAfterUpload:
 			os.unlink(localInputFilePath)
@@ -168,11 +168,13 @@ class SftpShare(AbstractShare):
 
 
 
-	def _writeAllDataToFile(self, remoteOutputFilePath, fileData):
+	def _writeAllDataToFile(self, remoteOutputFilePath, fileData, timeStamp = None):
 		remotePath = self.__buildPath(remoteOutputFilePath)
 		if self.__tempDirPath is None:
 			fd = self.__con.open(remotePath, mode='w', bufsize=65536)
 			fd.write(fileData)
+			if timeStamp != None:
+				fd.utime((int(timeStamp / 1000.0), int(timeStamp / 1000.0)))
 			fd.close()
 		else:
 			remoteDir = os.path.dirname(remotePath)
@@ -181,10 +183,11 @@ class SftpShare(AbstractShare):
 			fd = open(localTmpPath, 'wb', 0o600)
 			fd.write(fileData)
 			fd.close()
+			if timeStamp != None:
+				os.utime(localTmpPath, (int(timeStamp / 1000.0), int(timeStamp / 1000.0)))
 			self.__con.chdir(remoteDir)
-			self.__con.put(localTmpPath)
+			self.__con.put(localTmpPath, preserve_mtime=True)
 			os.unlink(localTmpPath)
-
 	#
 
 
@@ -205,7 +208,6 @@ class SftpShare(AbstractShare):
 			fd.close()
 			os.unlink(localTmpPath)
 			return fileData
-
 	#
 
 
@@ -218,10 +220,17 @@ class SftpShare(AbstractShare):
 
 
 
-	def deleteFile(self, path):
+	def deleteFile(self, path, bIgnoreErrorIfNotExists = False):
 		remotePath = self.__buildPath(path)
-		self.__con.remove(remotePath)
-
+		if bIgnoreErrorIfNotExists:
+			# TODO: fail if target is not a file!
+			try:
+				self.__con.remove(remotePath)
+			except:
+				return False
+		else:
+			self.__con.remove(remotePath)
+		return True
 	#
 
 
@@ -280,7 +289,6 @@ class SftpShare(AbstractShare):
 	def listDirectoryContent(self, path, bIncludeSubDirs = True, bIncludeFiles = True, bIncludeOthers = True):
 		path = self.__buildPath(path)
 		if path.endswith("/"):
-			path2 = path
 			if len(path) > 1:
 				path = path[:-1]
 		else:
@@ -292,9 +300,9 @@ class SftpShare(AbstractShare):
 					ret.append((dirEntry.filename, 'd', dirEntry.st_mode, dirEntry.st_uid, dirEntry.st_gid, None, None))
 			elif stat.S_ISREG(dirEntry.st_mode):
 				if bIncludeFiles:
-					ret.append((dirEntry.filename, 'f', dirEntry.st_mode, dirEntry.st_uid, dirEntry.st_gid, dirEntry.st_size, dirEntry.st_mtime * 1000))
+					ret.append((dirEntry.filename, 'f', dirEntry.st_mode, dirEntry.st_uid, dirEntry.st_gid, dirEntry.st_size, int(dirEntry.st_mtime) * 1000))
 			elif bIncludeOthers:
-				ret.append((dirEntry.filename, '?', dirEntry.st_mode, dirEntry.st_uid, dirEntry.st_gid, dirEntry.st_size, dirEntry.st_mtime * 1000))
+				ret.append((dirEntry.filename, '?', dirEntry.st_mode, dirEntry.st_uid, dirEntry.st_gid, dirEntry.st_size, int(dirEntry.st_mtime) * 1000))
 		return ret
 
 	#

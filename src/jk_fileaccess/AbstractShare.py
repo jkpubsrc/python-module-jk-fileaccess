@@ -91,7 +91,7 @@ class AbstractShare(object):
 	# Note: Text is written UTF-8 encoded. If you require different encoding, convert the text to binary yourself before invoking
 	# this method.
 	#
-	def writeAllDataToFile(self, remoteOutputFilePath, fileData):
+	def writeAllDataToFile(self, remoteOutputFilePath, fileData, timeStamp = None):
 		if isinstance(fileData, str):
 			fileData = fileData.encode("utf-8")
 		elif isinstance(fileData, (bytearray, bytes)):
@@ -99,12 +99,12 @@ class AbstractShare(object):
 		else:
 			raise Exception("Data must be provided as string or byte object!")
 
-		self._writeAllDataToFile(remoteOutputFilePath, fileData)
+		self._writeAllDataToFile(remoteOutputFilePath, fileData, timeStamp)
 	#
 
 
 
-	def _writeAllDataToFile(self, remoteOutputFilePath, fileData):
+	def _writeAllDataToFile(self, remoteOutputFilePath, fileData, timeStamp = None):
 		pass
 
 	def readAllDataFromFile(self, remoteInputFilePath):
@@ -113,7 +113,7 @@ class AbstractShare(object):
 	def deleteEmptyDirectory(self, path):
 		pass
 
-	def deleteFile(self, path):
+	def deleteFile(self, path, bIgnoreErrorIfNotExists = False):
 		pass
 
 	def createDirectory(self, path):
@@ -239,6 +239,32 @@ class AbstractShare(object):
 	#
 
 	#
+	# Checks if the spcified path exists and is a directory.
+	#
+	# @param		str path		The directory path.
+	# @return		bool			Returns <c>True</c> or <c>False</c>.
+	#
+	def checkIfDirectoryExists(self, path):
+		path = self._normalizeAndVerifyAbsolutePath(path)
+		if path == "/":
+			return True
+
+		pathElements = path[1:].split("/")
+
+		p = "/"
+		for pathElement in pathElements:
+			dirNames = self.listDirectoryContentNames(p, bIncludeSubDirs = True, bIncludeFiles = False, bIncludeOthers = False)
+			if pathElement not in dirNames:
+				# directory not found => create it
+				return False
+			if len(p) > 1:
+				p += "/"
+			p += pathElement
+
+		return True
+	#
+
+	#
 	# Get a list of all directories existing below the specified path.
 	#
 	# @param		str path		The (existing) start path for listing directories.
@@ -251,6 +277,9 @@ class AbstractShare(object):
 			ret.append(fullP)
 			ret.extend(self.listAllDirectoriesRecursively(fullP))
 		return ret
+	#
+
+
 
 	#
 	# Returns the contents of the specified directory in form of a list of strings.
@@ -263,6 +292,9 @@ class AbstractShare(object):
 	#
 	def listDirectoryContentNames(self, path, bIncludeSubDirs = True, bIncludeFiles = True, bIncludeOthers = True):
 		pass
+	#
+
+
 
 	#
 	# Returns the contents of the specified directory.
@@ -282,9 +314,15 @@ class AbstractShare(object):
 	#
 	def listDirectoryContent(self, path, bIncludeSubDirs = True, bIncludeFiles = True, bIncludeOthers = True):
 		pass
+	#
+
+
 
 	def _createRandomFilePath(self, dirPath, prefix = 'tmp_', randomNameLength = 32, postfix = ''):
 		pass
+	#
+
+
 
 	#
 	# Perform a speed test by writing, reading and deleting files to a temporarily created directory.
@@ -348,7 +386,6 @@ class AbstractShare(object):
 			"avgRead": tReadAvg,
 			"avgDel": tDelAvg
 		}
-
 	#
 
 #

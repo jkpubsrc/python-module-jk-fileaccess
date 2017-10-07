@@ -196,7 +196,7 @@ class LocalShare(AbstractShare):
 
 
 
-	def _writeAllDataToFile(self, remoteOutputFilePath, fileData):
+	def _writeAllDataToFile(self, remoteOutputFilePath, fileData, timeStamp = None):
 		remotePath = self.__buildPath(remoteOutputFilePath)
 		# print(">> " + remotePath)
 		# print("\t" + str(len(fileData)))
@@ -206,7 +206,8 @@ class LocalShare(AbstractShare):
 			if self.__uid != None:
 				os.fchown(fout, self.__uid, self.__gid)
 			fout.write(fileData)
-
+		if timeStamp != None:
+			os.utime(remotePath, (int(timeStamp / 1000), int(timeStamp / 1000)))
 	#
 
 
@@ -231,10 +232,17 @@ class LocalShare(AbstractShare):
 
 
 
-	def deleteFile(self, path):
+	def deleteFile(self, path, bIgnoreErrorIfNotExists = False):
 		path = self.__buildPath(path)
-		os.unlink(path)
-
+		if bIgnoreErrorIfNotExists:
+			# TODO: fail if target is not a file!
+			try:
+				os.unlink(path)
+			except:
+				return False
+		else:
+			os.unlink(path)
+		return True
 	#
 
 
@@ -311,9 +319,9 @@ class LocalShare(AbstractShare):
 					ret.append((dirEntry, 'd', statStruct.st_mode, statStruct.st_uid, statStruct.st_gid, None, None))
 			elif stat.S_ISREG(statStruct.st_mode):
 				if bIncludeFiles:
-					ret.append((dirEntry, 'f', statStruct.st_mode, statStruct.st_uid, statStruct.st_gid, statStruct.st_size, statStruct.st_mtime * 1000))
+					ret.append((dirEntry, 'f', statStruct.st_mode, statStruct.st_uid, statStruct.st_gid, statStruct.st_size, int(statStruct.st_mtime) * 1000))
 			elif bIncludeOthers:
-				ret.append((dirEntry, '?', statStruct.st_mode, statStruct.st_uid, statStruct.st_gid, statStruct.st_size, statStruct.st_mtime * 1000))
+				ret.append((dirEntry, '?', statStruct.st_mode, statStruct.st_uid, statStruct.st_gid, statStruct.st_size, int(statStruct.st_mtime) * 1000))
 		return ret
 
 	#
