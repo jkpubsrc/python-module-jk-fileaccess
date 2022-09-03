@@ -14,7 +14,7 @@ be fast, this should be simple. That is the goal this module tries to achieve.
 
 Information about this module can be found here:
 
-* [github.org](https://github.com/jkpubsrc/python-module-jk-fileaccess)
+* [github.com](https://github.com/jkpubsrc/python-module-jk-fileaccess)
 * [pypi.python.org](https://pypi.python.org/pypi/jk_fileaccess)
 
 How to use this module
